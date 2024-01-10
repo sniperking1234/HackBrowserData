@@ -9,28 +9,35 @@ import (
 
 	"github.com/tidwall/gjson"
 
-	"github.com/moond4rk/HackBrowserData/item"
-	"github.com/moond4rk/HackBrowserData/log"
-	"github.com/moond4rk/HackBrowserData/utils/fileutil"
+	"github.com/moond4rk/hackbrowserdata/crypto"
+	"github.com/moond4rk/hackbrowserdata/item"
+	"github.com/moond4rk/hackbrowserdata/log"
+	"github.com/moond4rk/hackbrowserdata/utils/fileutil"
 )
 
 var errDecodeMasterKeyFailed = errors.New("decode master key failed")
 
 func (c *Chromium) GetMasterKey() ([]byte, error) {
-	keyFile, err := fileutil.ReadFile(item.TempChromiumKey)
+	b, err := fileutil.ReadFile(item.TempChromiumKey)
 	if err != nil {
 		return nil, err
 	}
-	defer os.Remove(keyFile)
-	encryptedKey := gjson.Get(keyFile, "os_crypt.encrypted_key")
+	defer os.Remove(item.TempChromiumKey)
+
+	encryptedKey := gjson.Get(b, "os_crypt.encrypted_key")
 	if !encryptedKey.Exists() {
 		return nil, nil
 	}
-	pureKey, err := base64.StdEncoding.DecodeString(encryptedKey.String())
+
+	key, err := base64.StdEncoding.DecodeString(encryptedKey.String())
 	if err != nil {
 		return nil, errDecodeMasterKeyFailed
 	}
-	c.masterKey, err = crypto.DPAPI(pureKey[5:])
+	c.masterKey, err = crypto.DPAPI(key[5:])
+	if err != nil {
+		log.Errorf("%s failed to decrypt master key, maybe this profile was created on a different OS installation", c.name)
+		return nil, err
+	}
 	log.Infof("%s initialized master key success", c.name)
-	return c.masterKey, err
+	return c.masterKey, nil
 }

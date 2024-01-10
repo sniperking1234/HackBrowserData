@@ -11,6 +11,7 @@ const (
 	ChromiumDownload
 	ChromiumCreditCard
 	ChromiumLocalStorage
+	ChromiumSessionStorage
 	ChromiumExtension
 
 	YandexPassword
@@ -24,6 +25,7 @@ const (
 	FirefoxDownload
 	FirefoxCreditCard
 	FirefoxLocalStorage
+	FirefoxSessionStorage
 	FirefoxExtension
 )
 
@@ -41,6 +43,8 @@ func (i Item) FileName() string {
 		return fileChromiumDownload
 	case ChromiumLocalStorage:
 		return fileChromiumLocalStorage
+	case ChromiumSessionStorage:
+		return fileChromiumSessionStorage
 	case ChromiumCreditCard:
 		return fileChromiumCredit
 	case ChromiumExtension:
@@ -88,6 +92,8 @@ func (i Item) String() string {
 		return TempChromiumDownload
 	case ChromiumLocalStorage:
 		return TempChromiumLocalStorage
+	case ChromiumSessionStorage:
+		return TempChromiumSessionStorage
 	case ChromiumCreditCard:
 		return TempChromiumCreditCard
 	case ChromiumExtension:
@@ -112,6 +118,8 @@ func (i Item) String() string {
 		return TempFirefoxHistory
 	case FirefoxLocalStorage:
 		return TempFirefoxLocalStorage
+	case FirefoxSessionStorage:
+		return TempFirefoxSessionStorage
 	case FirefoxCreditCard:
 		return UnsupportedItem
 	case FirefoxExtension:
@@ -121,6 +129,31 @@ func (i Item) String() string {
 	}
 }
 
+// IsSensitive returns whether the item is sensitive data
+// password, cookie, credit card, master key is unlimited
+func (i Item) IsSensitive() bool {
+	switch i {
+	case ChromiumKey, ChromiumCookie, ChromiumPassword, ChromiumCreditCard,
+		FirefoxKey4, FirefoxPassword, FirefoxCookie, FirefoxCreditCard,
+		YandexPassword, YandexCreditCard:
+		return true
+	default:
+		return false
+	}
+}
+
+// FilterSensitiveItems returns the sensitive items
+func FilterSensitiveItems(items []Item) []Item {
+	var filtered []Item
+	for _, item := range items {
+		if item.IsSensitive() {
+			filtered = append(filtered, item)
+		}
+	}
+	return filtered
+}
+
+// DefaultFirefox returns the default items for the firefox browser
 var DefaultFirefox = []Item{
 	FirefoxKey4,
 	FirefoxPassword,
@@ -130,9 +163,11 @@ var DefaultFirefox = []Item{
 	FirefoxDownload,
 	FirefoxCreditCard,
 	FirefoxLocalStorage,
+	FirefoxSessionStorage,
 	FirefoxExtension,
 }
 
+// DefaultYandex returns the default items for the yandex browser
 var DefaultYandex = []Item{
 	ChromiumKey,
 	ChromiumCookie,
@@ -142,9 +177,11 @@ var DefaultYandex = []Item{
 	ChromiumExtension,
 	YandexPassword,
 	ChromiumLocalStorage,
+	ChromiumSessionStorage,
 	YandexCreditCard,
 }
 
+// DefaultChromium returns the default items for the chromium browser
 var DefaultChromium = []Item{
 	ChromiumKey,
 	ChromiumPassword,
@@ -154,5 +191,6 @@ var DefaultChromium = []Item{
 	ChromiumDownload,
 	ChromiumCreditCard,
 	ChromiumLocalStorage,
+	ChromiumSessionStorage,
 	ChromiumExtension,
 }

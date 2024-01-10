@@ -11,9 +11,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/tidwall/gjson"
 
-	"github.com/moond4rk/HackBrowserData/item"
-	"github.com/moond4rk/HackBrowserData/log"
-	"github.com/moond4rk/HackBrowserData/utils/typeutil"
+	"github.com/moond4rk/hackbrowserdata/item"
+	"github.com/moond4rk/hackbrowserdata/log"
+	"github.com/moond4rk/hackbrowserdata/utils/typeutil"
 )
 
 type ChromiumDownload []download
@@ -31,14 +31,14 @@ const (
 	queryChromiumDownload = `SELECT target_path, tab_url, total_bytes, start_time, end_time, mime_type FROM downloads`
 )
 
-func (c *ChromiumDownload) Parse(masterKey []byte) error {
-	historyDB, err := sql.Open("sqlite3", item.TempChromiumDownload)
+func (c *ChromiumDownload) Parse(_ []byte) error {
+	db, err := sql.Open("sqlite3", item.TempChromiumDownload)
 	if err != nil {
 		return err
 	}
 	defer os.Remove(item.TempChromiumDownload)
-	defer historyDB.Close()
-	rows, err := historyDB.Query(queryChromiumDownload)
+	defer db.Close()
+	rows, err := db.Query(queryChromiumDownload)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func (c *ChromiumDownload) Name() string {
 	return "download"
 }
 
-func (c *ChromiumDownload) Length() int {
+func (c *ChromiumDownload) Len() int {
 	return len(*c)
 }
 
@@ -82,34 +82,29 @@ const (
 	closeJournalMode     = `PRAGMA journal_mode=off`
 )
 
-func (f *FirefoxDownload) Parse(masterKey []byte) error {
-	var (
-		err          error
-		keyDB        *sql.DB
-		downloadRows *sql.Rows
-	)
-	keyDB, err = sql.Open("sqlite3", item.TempFirefoxDownload)
+func (f *FirefoxDownload) Parse(_ []byte) error {
+	db, err := sql.Open("sqlite3", item.TempFirefoxDownload)
 	if err != nil {
 		return err
 	}
 	defer os.Remove(item.TempFirefoxDownload)
-	defer keyDB.Close()
-	_, err = keyDB.Exec(closeJournalMode)
+	defer db.Close()
+
+	_, err = db.Exec(closeJournalMode)
+	if err != nil {
+		log.Error(err)
+	}
+	rows, err := db.Query(queryFirefoxDownload)
 	if err != nil {
 		return err
 	}
-	defer keyDB.Close()
-	downloadRows, err = keyDB.Query(queryFirefoxDownload)
-	if err != nil {
-		return err
-	}
-	defer downloadRows.Close()
-	for downloadRows.Next() {
+	defer rows.Close()
+	for rows.Next() {
 		var (
 			content, url       string
 			placeID, dateAdded int64
 		)
-		if err = downloadRows.Scan(&placeID, &content, &url, &dateAdded); err != nil {
+		if err = rows.Scan(&placeID, &content, &url, &dateAdded); err != nil {
 			log.Warn(err)
 		}
 		contentList := strings.Split(content, ",{")
@@ -137,6 +132,6 @@ func (f *FirefoxDownload) Name() string {
 	return "download"
 }
 
-func (f *FirefoxDownload) Length() int {
+func (f *FirefoxDownload) Len() int {
 	return len(*f)
 }

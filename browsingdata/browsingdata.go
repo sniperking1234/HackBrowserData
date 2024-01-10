@@ -1,19 +1,20 @@
-package browingdata
+package browsingdata
 
 import (
 	"path"
 
-	"github.com/moond4rk/HackBrowserData/browingdata/bookmark"
-	"github.com/moond4rk/HackBrowserData/browingdata/cookie"
-	"github.com/moond4rk/HackBrowserData/browingdata/creditcard"
-	"github.com/moond4rk/HackBrowserData/browingdata/download"
-	"github.com/moond4rk/HackBrowserData/browingdata/extension"
-	"github.com/moond4rk/HackBrowserData/browingdata/history"
-	"github.com/moond4rk/HackBrowserData/browingdata/localstorage"
-	"github.com/moond4rk/HackBrowserData/browingdata/password"
-	"github.com/moond4rk/HackBrowserData/item"
-	"github.com/moond4rk/HackBrowserData/log"
-	"github.com/moond4rk/HackBrowserData/utils/fileutil"
+	"github.com/moond4rk/hackbrowserdata/browsingdata/bookmark"
+	"github.com/moond4rk/hackbrowserdata/browsingdata/cookie"
+	"github.com/moond4rk/hackbrowserdata/browsingdata/creditcard"
+	"github.com/moond4rk/hackbrowserdata/browsingdata/download"
+	"github.com/moond4rk/hackbrowserdata/browsingdata/extension"
+	"github.com/moond4rk/hackbrowserdata/browsingdata/history"
+	"github.com/moond4rk/hackbrowserdata/browsingdata/localstorage"
+	"github.com/moond4rk/hackbrowserdata/browsingdata/password"
+	"github.com/moond4rk/hackbrowserdata/browsingdata/sessionstorage"
+	"github.com/moond4rk/hackbrowserdata/item"
+	"github.com/moond4rk/hackbrowserdata/log"
+	"github.com/moond4rk/hackbrowserdata/utils/fileutil"
 )
 
 type Data struct {
@@ -25,14 +26,14 @@ type Source interface {
 
 	Name() string
 
-	Length() int
+	Len() int
 }
 
-func New(sources []item.Item) *Data {
+func New(items []item.Item) *Data {
 	bd := &Data{
 		sources: make(map[item.Item]Source),
 	}
-	bd.addSource(sources)
+	bd.addSources(items)
 	return bd
 }
 
@@ -40,16 +41,17 @@ func (d *Data) Recovery(masterKey []byte) error {
 	for _, source := range d.sources {
 		if err := source.Parse(masterKey); err != nil {
 			log.Errorf("parse %s error %s", source.Name(), err.Error())
+			continue
 		}
 	}
 	return nil
 }
 
 func (d *Data) Output(dir, browserName, flag string) {
-	output := NewOutPutter(flag)
+	output := newOutPutter(flag)
 
 	for _, source := range d.sources {
-		if source.Length() == 0 {
+		if source.Len() == 0 {
 			// if the length of the export data is 0, then it is not necessary to output
 			continue
 		}
@@ -72,8 +74,8 @@ func (d *Data) Output(dir, browserName, flag string) {
 	}
 }
 
-func (d *Data) addSource(Sources []item.Item) {
-	for _, source := range Sources {
+func (d *Data) addSources(items []item.Item) {
+	for _, source := range items {
 		switch source {
 		case item.ChromiumPassword:
 			d.sources[source] = &password.ChromiumPassword{}
@@ -89,6 +91,8 @@ func (d *Data) addSource(Sources []item.Item) {
 			d.sources[source] = &creditcard.ChromiumCreditCard{}
 		case item.ChromiumLocalStorage:
 			d.sources[source] = &localstorage.ChromiumLocalStorage{}
+		case item.ChromiumSessionStorage:
+			d.sources[source] = &sessionstorage.ChromiumSessionStorage{}
 		case item.ChromiumExtension:
 			d.sources[source] = &extension.ChromiumExtension{}
 		case item.YandexPassword:

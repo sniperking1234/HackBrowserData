@@ -3,7 +3,6 @@ package fileutil
 import (
 	"archive/zip"
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"path"
@@ -13,8 +12,8 @@ import (
 	cp "github.com/otiai10/copy"
 )
 
-// FileExists checks if the file exists in the provided path
-func FileExists(filename string) bool {
+// IsFileExists checks if the file exists in the provided path
+func IsFileExists(filename string) bool {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		return false
@@ -25,9 +24,9 @@ func FileExists(filename string) bool {
 	return !info.IsDir()
 }
 
-// FolderExists checks if the folder exists
-func FolderExists(foldername string) bool {
-	info, err := os.Stat(foldername)
+// IsDirExists checks if the folder exists
+func IsDirExists(folder string) bool {
+	info, err := os.Stat(folder)
 	if os.IsNotExist(err) {
 		return false
 	}
@@ -35,21 +34,6 @@ func FolderExists(foldername string) bool {
 		return false
 	}
 	return info.IsDir()
-}
-
-// FilesInFolder returns the filepath contains in the provided folder
-func FilesInFolder(dir, filename string) ([]string, error) {
-	if !FolderExists(dir) {
-		return nil, errors.New(dir + " folder does not exist")
-	}
-	var files []string
-	err := filepath.Walk(dir, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() && strings.HasSuffix(path, filename) {
-			files = append(files, path)
-		}
-		return err
-	})
-	return files, err
 }
 
 // ReadFile reads the file from the provided path
@@ -65,33 +49,6 @@ func CopyDir(src, dst, skip string) error {
 		return strings.HasSuffix(strings.ToLower(src), skip), nil
 	}}
 	return cp.Copy(src, dst, s)
-}
-
-// CopyDirHasSuffix copies the directory from the source to the destination
-// contain is the file if you want to copy, and rename copied filename with dir/index_filename
-func CopyDirHasSuffix(src, dst, suffix string) error {
-	var files []string
-	err := filepath.Walk(src, func(path string, f os.FileInfo, err error) error {
-		if !f.IsDir() && strings.HasSuffix(strings.ToLower(f.Name()), suffix) {
-			files = append(files, path)
-		}
-		return err
-	})
-	if err != nil {
-		return err
-	}
-	if err := os.MkdirAll(dst, 0o700); err != nil {
-		return err
-	}
-	for index, file := range files {
-		// p = dir/index_file
-		p := fmt.Sprintf("%s/%d_%s", dst, index, BaseDir(file))
-		err = CopyFile(file, p)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // CopyFile copies the file from the source to the destination
@@ -114,7 +71,7 @@ func ItemName(browser, item, ext string) string {
 }
 
 func BrowserName(browser, user string) string {
-	replace := strings.NewReplacer(" ", "_", ".", "_", "-", "_", "Profile", "User")
+	replace := strings.NewReplacer(" ", "_", ".", "_", "-", "_", "Profile", "user")
 	return strings.ToLower(fmt.Sprintf("%s_%s", replace.Replace(browser), replace.Replace(user)))
 }
 

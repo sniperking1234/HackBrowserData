@@ -8,10 +8,13 @@ import (
 	"strings"
 
 	"github.com/syndtr/goleveldb/leveldb"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
 
-	"github.com/moond4rk/HackBrowserData/item"
-	"github.com/moond4rk/HackBrowserData/log"
-	"github.com/moond4rk/HackBrowserData/utils/typeutil"
+	"github.com/moond4rk/hackbrowserdata/item"
+	"github.com/moond4rk/hackbrowserdata/log"
+	"github.com/moond4rk/hackbrowserdata/utils/byteutil"
+	"github.com/moond4rk/hackbrowserdata/utils/typeutil"
 )
 
 type ChromiumLocalStorage []storage
@@ -23,29 +26,30 @@ type storage struct {
 	Value  string
 }
 
-func (c *ChromiumLocalStorage) Parse(masterKey []byte) error {
+const maxLocalStorageValueLength = 1024 * 2
+
+func (c *ChromiumLocalStorage) Parse(_ []byte) error {
 	db, err := leveldb.OpenFile(item.TempChromiumLocalStorage, nil)
 	if err != nil {
 		return err
 	}
 	defer os.RemoveAll(item.TempChromiumLocalStorage)
-	// log.Info("parsing local storage now")
 	defer db.Close()
 
 	iter := db.NewIterator(nil, nil)
 	for iter.Next() {
 		key := iter.Key()
 		value := iter.Value()
-		// don't parse value upper than 5kB
-		if len(value) > 1024*5 {
-			continue
-		}
 		s := new(storage)
 		s.fillKey(key)
-		s.fillValue(value)
-		// don't save meta data
+		// don't all value upper than 2KB
+		if len(value) < maxLocalStorageValueLength {
+			s.fillValue(value)
+		} else {
+			s.Value = fmt.Sprintf("value is too long, length is %d, supportted max length is %d", len(value), maxLocalStorageValueLength)
+		}
 		if s.IsMeta {
-			continue
+			s.Value = fmt.Sprintf("meta data, value bytes is %v", value)
 		}
 		*c = append(*c, *s)
 	}
@@ -58,7 +62,7 @@ func (c *ChromiumLocalStorage) Name() string {
 	return "localStorage"
 }
 
-func (c *ChromiumLocalStorage) Length() int {
+func (c *ChromiumLocalStorage) Len() int {
 	return len(*c)
 }
 
@@ -82,37 +86,38 @@ func (s *storage) fillHeader(url, key []byte) {
 	s.Key = string(bytes.Trim(key, "\x01"))
 }
 
+func convertUTF16toUTF8(source []byte, endian unicode.Endianness) ([]byte, error) {
+	r, _, err := transform.Bytes(unicode.UTF16(endian, unicode.IgnoreBOM).NewDecoder(), source)
+	return r, err
+}
+
 // fillValue fills value of the storage
 // TODO: support unicode charter
 func (s *storage) fillValue(b []byte) {
-	t := fmt.Sprintf("%c", b)
-	m := strings.NewReplacer(" ", "", "\x00", "", "\x01", "").Replace(t)
-	s.Value = m
+	value := bytes.Map(byteutil.OnSplitUTF8Func, b)
+	s.Value = string(value)
 }
 
 type FirefoxLocalStorage []storage
 
 const (
-	queryFirefoxHistory = `SELECT originKey, key, value FROM webappsstore2`
-	closeJournalMode    = `PRAGMA journal_mode=off`
+	queryLocalStorage = `SELECT originKey, key, value FROM webappsstore2`
+	closeJournalMode  = `PRAGMA journal_mode=off`
 )
 
-func (f *FirefoxLocalStorage) Parse(masterKey []byte) error {
+func (f *FirefoxLocalStorage) Parse(_ []byte) error {
 	db, err := sql.Open("sqlite3", item.TempFirefoxLocalStorage)
-	if err != nil {
-		return err
-	}
 	if err != nil {
 		return err
 	}
 	defer os.Remove(item.TempFirefoxLocalStorage)
 	defer db.Close()
+
 	_, err = db.Exec(closeJournalMode)
 	if err != nil {
-		return err
+		log.Error(err)
 	}
-	defer db.Close()
-	rows, err := db.Query(queryFirefoxHistory)
+	rows, err := db.Query(queryLocalStorage)
 	if err != nil {
 		return err
 	}
@@ -147,6 +152,6 @@ func (f *FirefoxLocalStorage) Name() string {
 	return "localStorage"
 }
 
-func (f *FirefoxLocalStorage) Length() int {
+func (f *FirefoxLocalStorage) Len() int {
 	return len(*f)
 }

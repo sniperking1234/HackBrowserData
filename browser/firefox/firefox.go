@@ -6,10 +6,10 @@ import (
 	"io/fs"
 	"path/filepath"
 
-	"github.com/moond4rk/HackBrowserData/browingdata"
-	"github.com/moond4rk/HackBrowserData/item"
-	"github.com/moond4rk/HackBrowserData/utils/fileutil"
-	"github.com/moond4rk/HackBrowserData/utils/typeutil"
+	"github.com/moond4rk/hackbrowserdata/browsingdata"
+	"github.com/moond4rk/hackbrowserdata/item"
+	"github.com/moond4rk/hackbrowserdata/utils/fileutil"
+	"github.com/moond4rk/hackbrowserdata/utils/typeutil"
 )
 
 type Firefox struct {
@@ -23,34 +23,22 @@ type Firefox struct {
 
 var ErrProfilePathNotFound = errors.New("profile path not found")
 
-// New returns a new Firefox instance.
-func New(name, storage, profilePath string, items []item.Item) ([]*Firefox, error) {
-	f := &Firefox{
-		name:        name,
-		storage:     storage,
-		profilePath: profilePath,
-		items:       items,
-	}
-	multiItemPaths, err := f.getMultiItemPath(f.profilePath, f.items)
-	if err != nil {
-		return nil, err
-	}
+// New returns new Firefox instances.
+func New(profilePath string, items []item.Item) ([]*Firefox, error) {
+	multiItemPaths := make(map[string]map[item.Item]string)
+	// ignore walk dir error since it can be produced by a single entry
+	_ = filepath.WalkDir(profilePath, firefoxWalkFunc(items, multiItemPaths))
 
 	firefoxList := make([]*Firefox, 0, len(multiItemPaths))
 	for name, itemPaths := range multiItemPaths {
 		firefoxList = append(firefoxList, &Firefox{
-			name:      fmt.Sprintf("Firefox-%s", name),
+			name:      fmt.Sprintf("firefox-%s", name),
 			items:     typeutil.Keys(itemPaths),
 			itemPaths: itemPaths,
 		})
 	}
-	return firefoxList, nil
-}
 
-func (f *Firefox) getMultiItemPath(profilePath string, items []item.Item) (map[string]map[item.Item]string, error) {
-	multiItemPaths := make(map[string]map[item.Item]string)
-	err := filepath.Walk(profilePath, firefoxWalkFunc(items, multiItemPaths))
-	return multiItemPaths, err
+	return firefoxList, nil
 }
 
 func (f *Firefox) copyItemToLocal() error {
@@ -63,8 +51,8 @@ func (f *Firefox) copyItemToLocal() error {
 	return nil
 }
 
-func firefoxWalkFunc(items []item.Item, multiItemPaths map[string]map[item.Item]string) filepath.WalkFunc {
-	return func(path string, info fs.FileInfo, err error) error {
+func firefoxWalkFunc(items []item.Item, multiItemPaths map[string]map[item.Item]string) fs.WalkDirFunc {
+	return func(path string, info fs.DirEntry, err error) error {
 		for _, v := range items {
 			if info.Name() == v.FileName() {
 				parentBaseDir := fileutil.ParentBaseDir(path)
@@ -75,6 +63,7 @@ func firefoxWalkFunc(items []item.Item, multiItemPaths map[string]map[item.Item]
 				}
 			}
 		}
+
 		return err
 	}
 }
@@ -87,8 +76,13 @@ func (f *Firefox) Name() string {
 	return f.name
 }
 
-func (f *Firefox) BrowsingData() (*browingdata.Data, error) {
-	b := browingdata.New(f.items)
+func (f *Firefox) BrowsingData(isFullExport bool) (*browsingdata.Data, error) {
+	items := f.items
+	if !isFullExport {
+		items = item.FilterSensitiveItems(f.items)
+	}
+
+	b := browsingdata.New(items)
 
 	if err := f.copyItemToLocal(); err != nil {
 		return nil, err

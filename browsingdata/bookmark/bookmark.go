@@ -10,10 +10,10 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/tidwall/gjson"
 
-	"github.com/moond4rk/HackBrowserData/item"
-	"github.com/moond4rk/HackBrowserData/log"
-	"github.com/moond4rk/HackBrowserData/utils/fileutil"
-	"github.com/moond4rk/HackBrowserData/utils/typeutil"
+	"github.com/moond4rk/hackbrowserdata/item"
+	"github.com/moond4rk/hackbrowserdata/log"
+	"github.com/moond4rk/hackbrowserdata/utils/fileutil"
+	"github.com/moond4rk/hackbrowserdata/utils/typeutil"
 )
 
 type ChromiumBookmark []bookmark
@@ -26,7 +26,7 @@ type bookmark struct {
 	DateAdded time.Time
 }
 
-func (c *ChromiumBookmark) Parse(masterKey []byte) error {
+func (c *ChromiumBookmark) Parse(_ []byte) error {
 	bookmarks, err := fileutil.ReadFile(item.TempChromiumBookmark)
 	if err != nil {
 		return err
@@ -40,30 +40,32 @@ func (c *ChromiumBookmark) Parse(masterKey []byte) error {
 			return true
 		})
 	}
-	// TODO: refactor with go generics
+
 	sort.Slice(*c, func(i, j int) bool {
 		return (*c)[i].DateAdded.After((*c)[j].DateAdded)
 	})
 	return nil
 }
 
+const (
+	bookmarkID       = "id"
+	bookmarkAdded    = "date_added"
+	bookmarkURL      = "url"
+	bookmarkName     = "name"
+	bookmarkType     = "type"
+	bookmarkChildren = "children"
+)
+
 func getBookmarkChildren(value gjson.Result, w *ChromiumBookmark) (children gjson.Result) {
-	const (
-		bookmarkID       = "id"
-		bookmarkAdded    = "date_added"
-		bookmarkURL      = "url"
-		bookmarkName     = "name"
-		bookmarkType     = "type"
-		bookmarkChildren = "children"
-	)
 	nodeType := value.Get(bookmarkType)
+	children = value.Get(bookmarkChildren)
+
 	bm := bookmark{
 		ID:        value.Get(bookmarkID).Int(),
 		Name:      value.Get(bookmarkName).String(),
 		URL:       value.Get(bookmarkURL).String(),
 		DateAdded: typeutil.TimeEpoch(value.Get(bookmarkAdded).Int()),
 	}
-	children = value.Get(bookmarkChildren)
 	if nodeType.Exists() {
 		bm.Type = nodeType.String()
 		*w = append(*w, bm)
@@ -76,20 +78,11 @@ func getBookmarkChildren(value gjson.Result, w *ChromiumBookmark) (children gjso
 	return children
 }
 
-func bookmarkType(a int64) string {
-	switch a {
-	case 1:
-		return "url"
-	default:
-		return "folder"
-	}
-}
-
 func (c *ChromiumBookmark) Name() string {
 	return "bookmark"
 }
 
-func (c *ChromiumBookmark) Length() int {
+func (c *ChromiumBookmark) Len() int {
 	return len(*c)
 }
 
@@ -100,39 +93,34 @@ const (
 	closeJournalMode     = `PRAGMA journal_mode=off`
 )
 
-func (f *FirefoxBookmark) Parse(masterKey []byte) error {
-	var (
-		err          error
-		keyDB        *sql.DB
-		bookmarkRows *sql.Rows
-	)
-	keyDB, err = sql.Open("sqlite3", item.TempFirefoxBookmark)
+func (f *FirefoxBookmark) Parse(_ []byte) error {
+	db, err := sql.Open("sqlite3", item.TempFirefoxBookmark)
 	if err != nil {
 		return err
 	}
 	defer os.Remove(item.TempFirefoxBookmark)
-	defer keyDB.Close()
-	_, err = keyDB.Exec(closeJournalMode)
+	defer db.Close()
+	_, err = db.Exec(closeJournalMode)
 	if err != nil {
 		log.Error(err)
 	}
-	bookmarkRows, err = keyDB.Query(queryFirefoxBookMark)
+	rows, err := db.Query(queryFirefoxBookMark)
 	if err != nil {
 		return err
 	}
-	defer bookmarkRows.Close()
-	for bookmarkRows.Next() {
+	defer rows.Close()
+	for rows.Next() {
 		var (
-			id, bType, dateAdded int64
-			title, url           string
+			id, bt, dateAdded int64
+			title, url        string
 		)
-		if err = bookmarkRows.Scan(&id, &url, &bType, &dateAdded, &title); err != nil {
+		if err = rows.Scan(&id, &url, &bt, &dateAdded, &title); err != nil {
 			log.Warn(err)
 		}
 		*f = append(*f, bookmark{
 			ID:        id,
 			Name:      title,
-			Type:      bookmarkType(bType),
+			Type:      linkType(bt),
 			URL:       url,
 			DateAdded: typeutil.TimeStamp(dateAdded / 1000000),
 		})
@@ -147,6 +135,15 @@ func (f *FirefoxBookmark) Name() string {
 	return "bookmark"
 }
 
-func (f *FirefoxBookmark) Length() int {
+func (f *FirefoxBookmark) Len() int {
 	return len(*f)
+}
+
+func linkType(a int64) string {
+	switch a {
+	case 1:
+		return "url"
+	default:
+		return "folder"
+	}
 }

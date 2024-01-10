@@ -1,5 +1,5 @@
 <div align="center">
-<img src="LOGO.svg" alt="hack-browser-data logo" />
+<img src="LOGO.png" alt="hack-browser-data logo" />
 </div>
 
 
@@ -14,67 +14,68 @@
 
 ### Windows
 
-| 浏览器        | 密码 | Cookie | 书签 | 历史记录 |
-| :------- | :------: | :----: | :------: | :-----: |
-| Google Chrome|    ✅     |   ✅    |    ✅     |    ✅    |
-| Google Chrome Beta|    ✅    |   ✅   |    ✅    |    ✅    |
-| Chromium |    ✅    |    ✅    |    ✅    |    ✅    |
-| Microsoft Edge|    ✅     |   ✅    |    ✅     |    ✅    |
-| 360 极速浏览器    |    ✅     |   ✅    |    ✅     |    ✅    |
-| QQ |    ✅     |   ✅    |    ✅     |    ✅    |
-| Brave  |    ✅    |   ✅   |    ✅    |    ✅    |
-| Opera  |    ✅    |    ✅    |    ✅    |    ✅    |
-| OperaGX  |    ✅    |    ✅    |    ✅    |    ✅    |
-| Vivaldi  |    ✅    |    ✅    |    ✅    |    ✅    |
-| Yandex |    ✅    |    ✅    |    ✅    |    ✅    |
-| CocCoc |    ✅    |    ✅    |    ✅    |    ✅    |
-| Firefox |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox Beta |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox Dev |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox ESR |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox Nightly |    ✅    |   ✅   |    ✅    |    ✅    |
-| IE 浏览器        |    ❌     |   ❌    |    ❌     |    ❌    |
+| 浏览器                | 密码  | Cookie | 书签  | 历史记录 |
+|:-------------------|:---:|:------:|:---:|:----:|
+| Google Chrome      |  ✅  |   ✅    |  ✅  |  ✅   |
+| Google Chrome Beta |  ✅  |   ✅    |  ✅  |  ✅   |
+| Chromium           |  ✅  |   ✅    |  ✅  |  ✅   |
+| Microsoft Edge     |  ✅  |   ✅    |  ✅  |  ✅   |
+| 360 极速浏览器          |  ✅  |   ✅    |  ✅  |  ✅   |
+| QQ                 |  ✅  |   ✅    |  ✅  |  ✅   |
+| Brave              |  ✅  |   ✅    |  ✅  |  ✅   |
+| Opera              |  ✅  |   ✅    |  ✅  |  ✅   |
+| OperaGX            |  ✅  |   ✅    |  ✅  |  ✅   |
+| Vivaldi            |  ✅  |   ✅    |  ✅  |  ✅   |
+| Yandex             |  ✅  |   ✅    |  ✅  |  ✅   |
+| CocCoc             |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox            |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox Beta       |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox Dev        |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox ESR        |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox Nightly    |  ✅  |   ✅    |  ✅  |  ✅   |
+| IE 浏览器             |  ❌  |   ❌    |  ❌  |  ❌   |
 
 ### MacOS
 
 由于 MacOS 的安全性设置，基于 `Chromium` 内核浏览器解密时**需要当前用户密码**
 
-| 浏览器    | 密码 | Cookie | 书签 | 历史记录 |
-| :--- | :------: | :----: | :------: | :-----: |
-| Google Chrome  |    ✅     |   ✅    |    ✅     |    ✅    |
-| Google Chrome Beta |    ✅    |   ✅   |    ✅    |    ✅    |
-| Chromium |    ✅    |    ✅    |    ✅    |    ✅    |
-| Microsoft Edge |    ✅     |   ✅    |    ✅     |    ✅    |
-| Brave |    ✅    |   ✅   |    ✅    |    ✅    |
-| Opera |    ✅    |    ✅    |    ✅    |    ✅    |
-| OperaGX |    ✅    |    ✅    |    ✅    |    ✅    |
-| Vivaldi |    ✅    |    ✅    |    ✅    |    ✅    |
-| Yandex |    ✅    |    ✅    |    ✅    |    ✅    |
-| CocCoc |    ✅    |    ✅    |    ✅    |    ✅    |
-| Firefox |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox Beta |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox Dev |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox ESR |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox Nightly |    ✅    |   ✅   |    ✅    |    ✅    |
-| Safari   |    ❌     |   ❌    |    ❌     |    ❌|
+| 浏览器                | 密码 | Cookie | 书签 | 历史记录 |
+|:-------------------|:--:|:------:|:--:|:----:|
+| Google Chrome      | ✅  |   ✅    | ✅  |  ✅   |
+| Google Chrome Beta | ✅  |   ✅    | ✅  |  ✅   |
+| Chromium           | ✅  |   ✅    | ✅  |  ✅   |
+| Microsoft Edge     | ✅  |   ✅    | ✅  |  ✅   |
+| Brave              | ✅  |   ✅    | ✅  |  ✅   |
+| Opera              | ✅  |   ✅    | ✅  |  ✅   |
+| OperaGX            | ✅  |   ✅    | ✅  |  ✅   |
+| Vivaldi            | ✅  |   ✅    | ✅  |  ✅   |
+| CocCoc             | ✅  |   ✅    | ✅  |  ✅   |
+| Yandex             | ✅  |   ✅    | ✅  |  ✅   |
+| Arc                | ✅  |   ✅    | ✅  |  ✅   |
+| Firefox            | ✅  |   ✅    | ✅  |  ✅   |
+| Firefox Beta       | ✅  |   ✅    | ✅  |  ✅   |
+| Firefox Dev        | ✅  |   ✅    | ✅  |  ✅   |
+| Firefox ESR        | ✅  |   ✅    | ✅  |  ✅   |
+| Firefox Nightly    | ✅  |   ✅    | ✅  |  ✅   |
+| Safari             | ❌  |   ❌    | ❌  |  ❌   |
 
 ### Linux
 
-| 浏览器    | 密码 | Cookie | 书签 | 历史记录 |
-| :----- | :------: | :----: | :------: | :-----: |
-| Google Chrome |    ✅     |   ✅    |    ✅     |    ✅    |
-| Google Chrome Beta |    ✅    |   ✅   |    ✅    |    ✅    |
-| Chromium |    ✅    |    ✅    |    ✅    |    ✅    |
-| Microsoft Edge |    ✅    |   ✅   |    ✅    |    ✅    |
-| Brave |    ✅    |   ✅   |    ✅    |    ✅    |
-| Opera |    ✅    |    ✅    |    ✅    |    ✅    |
-| Vivaldi |    ✅    |    ✅    |    ✅    |    ✅    |
-| Chromium |    ✅     |   ✅    |    ✅     |    ✅    |
-| Firefox |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox Beta |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox Dev |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox ESR |    ✅    |   ✅   |    ✅    |    ✅    |
-| Firefox Nightly |    ✅    |   ✅   |    ✅    |    ✅    |
+| 浏览器                | 密码  | Cookie | 书签  | 历史记录 |
+|:-------------------|:---:|:------:|:---:|:----:|
+| Google Chrome      |  ✅  |   ✅    |  ✅  |  ✅   |
+| Google Chrome Beta |  ✅  |   ✅    |  ✅  |  ✅   |
+| Chromium           |  ✅  |   ✅    |  ✅  |  ✅   |
+| Microsoft Edge     |  ✅  |   ✅    |  ✅  |  ✅   |
+| Brave              |  ✅  |   ✅    |  ✅  |  ✅   |
+| Opera              |  ✅  |   ✅    |  ✅  |  ✅   |
+| Vivaldi            |  ✅  |   ✅    |  ✅  |  ✅   |
+| Chromium           |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox            |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox Beta       |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox Dev        |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox ESR        |  ✅  |   ✅    |  ✅  |  ✅   |
+| Firefox Nightly    |  ✅  |   ✅    |  ✅  |  ✅   |
 
 ## 安装运行
 ### 安装
@@ -121,25 +122,29 @@ CC=x86_64-linux-musl-gcc CXX=x86_64-linux-musl-g++ GOARCH=amd64 GOOS=linux CGO_E
 ```
 PS C:\test> .\hack-browser-data.exe -h
 NAME:
-   hack-browser-data - Export password|bookmark|cookie|history|credit card|download|localStorage|extension from browser
+   hack-browser-data - Export passwords|bookmarks|cookies|history|credit cards|download history|localStorage|extensions from browser
 
 USAGE:
-   [hack-browser-data -b chrome -f json -dir results -cc]
-   Export all browingdata(password/cookie/history/bookmark) from browser
+   [hack-browser-data -b chrome -f json --dir results --zip]
+   Export all browsing data (passwords/cookies/history/bookmarks) from browser
    Github Link: https://github.com/moonD4rk/HackBrowserData
+
+VERSION:
+   0.4.5
 
 GLOBAL OPTIONS:
    --verbose, --vv                   verbose (default: false)
    --compress, --zip                 compress result to zip (default: false)
-   --browser value, -b value         available browsers: all|chrome|opera-gx|vivaldi|coccoc|brave|edge|chromium|chrome-beta|opera|yandex|firefox (default: "all")
+   --browser value, -b value         available browsers: all|360|brave|chrome|chrome-beta|chromium|coccoc|dc|edge|firefox|opera|opera-gx|qq|sogou|vivaldi|yandex (default: "all")
    --results-dir value, --dir value  export dir (default: "results")
-   --format value, -f value          file name csv|json (default: "csv")
+   --format value, -f value          output format: csv|json (default: "csv")
    --profile-path value, -p value    custom profile dir path, get with chrome://version
-   --help, -h                        show help (default: false)
-   --version, -v                     print the version (default: false)
+   --full-export, --full             is export full browsing data (default: true)
+   --help, -h                        show help
+   --version, -v                     print the version
 
 
-PS C:\test>  .\hack-browser-data.exe -b all -f json --dir results -zip
+PS C:\test> .\hack-browser-data.exe -b all -f json --dir results --zip
 [NOTICE] [browser.go:46,pickChromium] find browser Chrome success  
 [NOTICE] [browser.go:46,pickChromium] find browser Microsoft Edge success  
 [NOTICE] [browsingdata.go:59,Output] output to file results/microsoft_edge_download.json success  
@@ -165,6 +170,9 @@ PS C:\test>  .\hack-browser-data.exe -b all -f json --dir results -zip
 ## Contributors
 
 ![贡献者](/CONTRIBUTORS.svg)
+
+## Stargazers over time
+[![Star History Chart](https://api.star-history.com/svg?repos=moond4rk/hackbrowserdata&type=Date)](https://github.com/moond4rk/HackBrowserData)
 
 ## 404StarLink 2.0 - Galaxy
 `HackBrowserData` 是 404Team [星链计划2.0](https://github.com/knownsec/404StarLink2.0-Galaxy) 中的一环，如果对 HackBrowserData 有任何疑问又或是想要找小伙伴交流，可以参考[星链计划的加群方式](https://github.com/knownsec/404StarLink2.0-Galaxy#community)。

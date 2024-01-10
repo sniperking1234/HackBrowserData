@@ -9,10 +9,10 @@ import (
 	// import sqlite3 driver
 	_ "github.com/mattn/go-sqlite3"
 
-	"github.com/moond4rk/HackBrowserData/crypto"
-	"github.com/moond4rk/HackBrowserData/item"
-	"github.com/moond4rk/HackBrowserData/log"
-	"github.com/moond4rk/HackBrowserData/utils/typeutil"
+	"github.com/moond4rk/hackbrowserdata/crypto"
+	"github.com/moond4rk/hackbrowserdata/item"
+	"github.com/moond4rk/hackbrowserdata/log"
+	"github.com/moond4rk/hackbrowserdata/utils/typeutil"
 )
 
 type ChromiumCookie []cookie
@@ -36,13 +36,13 @@ const (
 )
 
 func (c *ChromiumCookie) Parse(masterKey []byte) error {
-	cookieDB, err := sql.Open("sqlite3", item.TempChromiumCookie)
+	db, err := sql.Open("sqlite3", item.TempChromiumCookie)
 	if err != nil {
 		return err
 	}
 	defer os.Remove(item.TempChromiumCookie)
-	defer cookieDB.Close()
-	rows, err := cookieDB.Query(queryChromiumCookie)
+	defer db.Close()
+	rows, err := db.Query(queryChromiumCookie)
 	if err != nil {
 		return err
 	}
@@ -71,11 +71,10 @@ func (c *ChromiumCookie) Parse(masterKey []byte) error {
 			ExpireDate:   typeutil.TimeEpoch(expireDate),
 		}
 		if len(encryptValue) > 0 {
-			var err error
-			if masterKey == nil {
+			if len(masterKey) == 0 {
 				value, err = crypto.DPAPI(encryptValue)
 			} else {
-				value, err = crypto.Chromium(masterKey, encryptValue)
+				value, err = crypto.DecryptPass(masterKey, encryptValue)
 			}
 			if err != nil {
 				log.Error(err)
@@ -94,7 +93,7 @@ func (c *ChromiumCookie) Name() string {
 	return "cookie"
 }
 
-func (c *ChromiumCookie) Length() int {
+func (c *ChromiumCookie) Len() int {
 	return len(*c)
 }
 
@@ -104,14 +103,15 @@ const (
 	queryFirefoxCookie = `SELECT name, value, host, path, creationTime, expiry, isSecure, isHttpOnly FROM moz_cookies`
 )
 
-func (f *FirefoxCookie) Parse(masterKey []byte) error {
-	cookieDB, err := sql.Open("sqlite3", item.TempFirefoxCookie)
+func (f *FirefoxCookie) Parse(_ []byte) error {
+	db, err := sql.Open("sqlite3", item.TempFirefoxCookie)
 	if err != nil {
 		return err
 	}
 	defer os.Remove(item.TempFirefoxCookie)
-	defer cookieDB.Close()
-	rows, err := cookieDB.Query(queryFirefoxCookie)
+	defer db.Close()
+
+	rows, err := db.Query(queryFirefoxCookie)
 	if err != nil {
 		return err
 	}
@@ -136,6 +136,10 @@ func (f *FirefoxCookie) Parse(masterKey []byte) error {
 			Value:      value,
 		})
 	}
+
+	sort.Slice(*f, func(i, j int) bool {
+		return (*f)[i].CreateDate.After((*f)[j].CreateDate)
+	})
 	return nil
 }
 
@@ -143,6 +147,6 @@ func (f *FirefoxCookie) Name() string {
 	return "cookie"
 }
 
-func (f *FirefoxCookie) Length() int {
+func (f *FirefoxCookie) Len() int {
 	return len(*f)
 }
